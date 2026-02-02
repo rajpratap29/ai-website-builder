@@ -244,7 +244,7 @@ export const deleteProject = async (req: Request, res: Response) => {
 };
 
 // Controller for getting project code for preview
-export const getProjectPrevier = async (req: Request, res: Response) => {
+export const getProjectPreview = async (req: Request, res: Response) => {
   try {
     const userId = req.userId;
     const { projectId } = req.params;
