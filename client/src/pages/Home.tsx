@@ -45,7 +45,7 @@ const Home = () => {
         </p>
       </a>
 
-      <h1 className="text-center text-[40px] leading-[48px] md:text-6xl md:leading-[70px] mt-4 font-semibold max-w-3xl">
+      <h1 className="text-center text-[40px] leading-12 md:text-6xl md:leading-17.5 mt-4 font-semibold max-w-3xl">
         Turn thoughts into websites instantly, with AI.
       </h1>
 
@@ -65,7 +65,7 @@ const Home = () => {
           placeholder="Describe your presentation in details"
           required
         />
-        <button className="ml-auto flex items-center gap-2 bg-gradient-to-r from-[#CB52D4] to-indigo-600 rounded-md px-4 py-2">
+        <button className="ml-auto flex items-center gap-2 bg-linear-to-r from-[#CB52D4] to-indigo-600 rounded-md px-4 py-2">
           {!loading ? (
             "Create with AI"
           ) : (
@@ -77,7 +77,7 @@ const Home = () => {
         </button>
       </form>
 
-      <div className="flex flex-wrap items-center justify-center gap-16 md:gap-20 mx-auto mt-16">
+      {/* <div className="flex flex-wrap items-center justify-center gap-16 md:gap-20 mx-auto mt-16">
         <img
           className="max-w-28 md:max-w-32"
           src="https://saasly.prebuiltui.com/assets/companies-logo/framer.svg"
@@ -103,7 +103,7 @@ const Home = () => {
           src="https://saasly.prebuiltui.com/assets/companies-logo/walmart.svg"
           alt=""
         />
-      </div>
+      </div> */}
     </section>
   );
 };
