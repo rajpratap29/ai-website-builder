@@ -125,6 +125,20 @@ export const makeRevision = async (req: Request, res: Response) => {
 
     const code = codeGenerationResponse.choices[0].message.content || "";
 
+    if (!code) {
+      await prisma.conversation.create({
+        data: {
+          role: "assistant",
+          content: "Unable to generate the code please try again",
+          projectId,
+        },
+      });
+      await prisma.user.update({
+        where: { id: userId },
+        data: { credits: { increment: 5 } },
+      });
+    }
+
     const version = await prisma.version.create({
       data: {
         code: code
@@ -165,6 +179,7 @@ export const makeRevision = async (req: Request, res: Response) => {
     console.log(error.code || error.message);
     res.status(500).json({ message: error.message });
   }
+  return;
 };
 
 // Controller Function to rollback to a specific version
