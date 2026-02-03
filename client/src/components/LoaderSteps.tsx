@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 
 const steps = [
   { icon: ScanLineIcon, label: "Analyzing your request..." },
-  { icon: ScanIcon, label: "Generating layour structure..." },
+  { icon: ScanIcon, label: "Generating layout structure..." },
   { icon: TriangleIcon, label: "Assembling UI components..." },
   { icon: CircleIcon, label: "Finalizing your website..." },
 ];
 
-const STEP_DURATION = 45000;
+const STEP_DURATION = 60000;
 
 const LoaderSteps = () => {
   const [current, setCurrent] = useState(0);
