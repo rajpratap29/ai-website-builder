@@ -11,12 +11,26 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
-const corsOptions = {
-  origin: process.env.TRUSTED_ORIGINS?.split(",") || [],
-  credentials: true,
-};
+const trustedOrigins =
+  process.env.TRUSTED_ORIGINS?.split(",").map((o) => o.trim()) || [];
 
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: process.env.TRUSTED_ORIGINS?.split(",") || [],
+//   credentials: true,
+// };
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow mobile browsers
+      if (trustedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
 app.post(
   "/api/stripe",
   express.raw({ type: "application/json" }),
