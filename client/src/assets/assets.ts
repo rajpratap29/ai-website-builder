@@ -8,7 +8,7 @@ export const appPlans = [
   {
     id: "basic",
     name: "Basic",
-    price: "$5",
+    price: "$3",
     credits: 100,
     description: "Start Now, scale up as you grow.",
     features: [
@@ -22,7 +22,7 @@ export const appPlans = [
   {
     id: "pro",
     name: "Pro",
-    price: "$19",
+    price: "$9",
     credits: 400,
     description: "Add credits to create more projects",
     features: [
@@ -36,7 +36,7 @@ export const appPlans = [
   {
     id: "enterprise",
     name: "Enterprise",
-    price: "$49",
+    price: "$19",
     credits: 1000,
     description: "Add credits to create more projects",
     features: [
