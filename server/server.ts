@@ -29,14 +29,8 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "set-auth-token"],
-    exposedHeaders: ["set-auth-token"],
   }),
 );
-
-app.options("*", cors());
-
 app.post(
   "/api/stripe",
   express.raw({ type: "application/json" }),
