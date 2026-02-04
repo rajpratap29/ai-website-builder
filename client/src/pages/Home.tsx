@@ -1,7 +1,7 @@
 import api from "@/configs/axios";
 import { authClient } from "@/lib/auth-client";
 import { Loader2Icon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -32,12 +32,6 @@ const Home = () => {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    // This will pop up on your phone screen!
-    const token = localStorage.getItem("bearer_token");
-    alert("DEBUG CHECK: Token is " + token);
-  }, []);
 
   return (
     <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">
