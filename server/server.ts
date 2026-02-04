@@ -37,5 +37,4 @@ app.use("/api/project", projectRouter);
 //   console.log(`Server is running at http://localhost:${port}`);
 // });
 
-
-module.exports = app;
+export default app;
