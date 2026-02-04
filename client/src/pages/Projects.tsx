@@ -39,14 +39,10 @@ const Projects = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const previewRef = useRef<ProjectPreviewRef>(null);
-  const token = localStorage.getItem("bearer_token");
+
   const fetchProject = async () => {
     try {
-      const { data } = await api.get(`/api/user/project/${projectId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await api.get(`/api/user/project/${projectId}`);
       setProject(data.project);
       setIsGenerating(data.project.current_code ? false : true);
       setLoading(false);
