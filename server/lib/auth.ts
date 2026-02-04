@@ -26,6 +26,12 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL!,
   secret: process.env.BETTER_AUTH_SECRET!,
   advanced: {
+    crossOriginResourceSharing: {
+      allowedOrigins: trustedOrigins,
+      allowedHeaders: ["Content-Type", "Authorization"],
+      exposeHeaders: ["set-auth-token"],
+      credentials: true,
+    },
     cookies: {
       session_token: {
         name: "auth_session",
