@@ -8,6 +8,7 @@ export const protect = async (
   next: NextFunction,
 ) => {
   try {
+    console.log("Auth Header:", req.headers["authorization"]);
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
