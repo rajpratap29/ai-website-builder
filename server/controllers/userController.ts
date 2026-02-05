@@ -3,6 +3,105 @@ import prisma from "../lib/prisma.js";
 import openai from "../configs/openai.js";
 import Stripe from "stripe";
 
+// Generate website code in background
+async function generateWebsiteInBackground(
+  projectId: string,
+  userId: string,
+  enhancedPrompt: string,
+) {
+  console.log("GEN STARTED:", projectId);
+  const codeGenerationResponse = await openai.chat.completions.create({
+    model: "z-ai/glm-4.5-air:free",
+    messages: [
+      {
+        role: "system",
+        content: `
+            You are an expert web developer. Create a complete, production-ready, single-page website based on this request: "${enhancedPrompt}"
+
+            CRITICAL REQUIREMENTS:
+            - You MUST output valid HTML ONLY. 
+            - Use Tailwind CSS for ALL styling
+            - Include this EXACT script in the <head>: <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+            - Use Tailwind utility classes extensively for styling, animations, and responsiveness
+            - Make it fully functional and interactive with JavaScript in <script> tag before closing </body>
+            - Use modern, beautiful design with great UX using Tailwind classes
+            - Make it responsive using Tailwind responsive classes (sm:, md:, lg:, xl:)
+            - Use Tailwind animations and transitions (animate-*, transition-*)
+            - Include all necessary meta tags
+            - Use Google Fonts CDN if needed for custom fonts
+            - Use placeholder images from https://placehold.co/600x400
+            - Use Tailwind gradient classes for beautiful backgrounds
+            - Make sure all buttons, cards, and components use Tailwind styling
+
+            CRITICAL HARD RULES:
+            1. You MUST put ALL output ONLY into message.content.
+            2. You MUST NOT place anything in "reasoning", "analysis", "reasoning_details", or any hidden fields.
+            3. You MUST NOT include internal thoughts, explanations, analysis, comments, or markdown.
+            4. Do NOT include markdown, explanations, notes, or code fences.
+
+            The HTML should be complete and ready to render as-is with Tailwind CSS.
+          `,
+      },
+      {
+        role: "user",
+        content: enhancedPrompt || "",
+      },
+    ],
+  });
+
+  const code = codeGenerationResponse.choices[0].message.content || "";
+
+  if (!code) {
+    await prisma.conversation.create({
+      data: {
+        role: "assistant",
+        content: "Unable to generate the code please try again",
+        projectId,
+      },
+    });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { credits: { increment: 5 } },
+    });
+
+    return;
+  }
+
+  // Create version for the project
+  const version = await prisma.version.create({
+    data: {
+      code: code
+        .replace(/```[a-z]*\n?/gi, "")
+        .replace(/```$/g, "")
+        .trim(),
+      description: "Initial version",
+      projectId,
+    },
+  });
+
+  await prisma.conversation.create({
+    data: {
+      role: "assistant",
+      content:
+        "I've created you website! You can now preview it and request any changes.",
+      projectId,
+    },
+  });
+
+  await prisma.websiteProject.update({
+    where: { id: projectId },
+    data: {
+      current_code: code
+        .replace(/```[a-z]*\n?/gi, "")
+        .replace(/```$/g, "")
+        .trim(),
+      current_version_index: version.id,
+    },
+  });
+  console.log("GEN FINISHED:", projectId);
+}
+
+// Controllers
 // Get user credits
 export const getUserCredits = async (req: Request, res: Response) => {
   try {
@@ -67,12 +166,12 @@ export const createUserProject = async (req: Request, res: Response) => {
       },
     });
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { credits: { decrement: 5 } },
-    });
+    // await prisma.user.update({
+    //   where: { id: userId },
+    //   data: { credits: { decrement: 5 } },
+    // });
 
-    res.json({ projectId: project.id });
+    // res.json({ projectId: project.id });
 
     // Enhance user prompt
 
@@ -102,7 +201,7 @@ export const createUserProject = async (req: Request, res: Response) => {
       ],
     });
 
-    const enhancedPrompt = promptEnhanceResponse.choices[0].message.content;
+    const enhancedPrompt = promptEnhanceResponse.choices[0].message.content || initial_prompt;
 
     await prisma.conversation.create({
       data: {
@@ -120,93 +219,12 @@ export const createUserProject = async (req: Request, res: Response) => {
       },
     });
 
-    // Generate website code
-    const codeGenerationResponse = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
-      messages: [
-        {
-          role: "system",
-          content: `
-            You are an expert web developer. Create a complete, production-ready, single-page website based on this request: "${enhancedPrompt}"
+    res.json({ projectId: project.id });
 
-            CRITICAL REQUIREMENTS:
-            - You MUST output valid HTML ONLY. 
-            - Use Tailwind CSS for ALL styling
-            - Include this EXACT script in the <head>: <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-            - Use Tailwind utility classes extensively for styling, animations, and responsiveness
-            - Make it fully functional and interactive with JavaScript in <script> tag before closing </body>
-            - Use modern, beautiful design with great UX using Tailwind classes
-            - Make it responsive using Tailwind responsive classes (sm:, md:, lg:, xl:)
-            - Use Tailwind animations and transitions (animate-*, transition-*)
-            - Include all necessary meta tags
-            - Use Google Fonts CDN if needed for custom fonts
-            - Use placeholder images from https://placehold.co/600x400
-            - Use Tailwind gradient classes for beautiful backgrounds
-            - Make sure all buttons, cards, and components use Tailwind styling
+    generateWebsiteInBackground(project.id, userId, enhancedPrompt).catch(
+      console.error,
+    );
 
-            CRITICAL HARD RULES:
-            1. You MUST put ALL output ONLY into message.content.
-            2. You MUST NOT place anything in "reasoning", "analysis", "reasoning_details", or any hidden fields.
-            3. You MUST NOT include internal thoughts, explanations, analysis, comments, or markdown.
-            4. Do NOT include markdown, explanations, notes, or code fences.
-
-            The HTML should be complete and ready to render as-is with Tailwind CSS.
-          `,
-        },
-        {
-          role: "user",
-          content: enhancedPrompt || "",
-        },
-      ],
-    });
-
-    const code = codeGenerationResponse.choices[0].message.content || "";
-
-    if (!code) {
-      await prisma.conversation.create({
-        data: {
-          role: "assistant",
-          content: "Unable to generate the code please try again",
-          projectId: project.id,
-        },
-      });
-      await prisma.user.update({
-        where: { id: userId },
-        data: { credits: { increment: 5 } },
-      });
-    }
-
-    // Create version for the project
-    const version = await prisma.version.create({
-      data: {
-        code: code
-          .replace(/```[a-z]*\n?/gi, "")
-          .replace(/```$/g, "")
-          .trim(),
-        description: "Initial version",
-        projectId: project.id,
-      },
-    });
-
-    await prisma.conversation.create({
-      data: {
-        role: "assistant",
-        content:
-          "I've created you website! You can now preview it and request any changes.",
-        projectId: project.id,
-      },
-    });
-
-    await prisma.websiteProject.update({
-      where: { id: project.id },
-      data: {
-        current_code: code
-          .replace(/```[a-z]*\n?/gi, "")
-          .replace(/```$/g, "")
-          .trim(),
-        current_version_index: version.id,
-      },
-    });
   } catch (error: any) {
     await prisma.user.update({
       where: { id: userId },
