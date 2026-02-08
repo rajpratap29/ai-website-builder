@@ -36,7 +36,7 @@ const LoaderSteps = () => {
         {steps[current].label}
       </p>
       <p className="text-xs text-gray-400 mt-2 transition-opacity duration-700 opacity-100">
-        This may take around 2-3 minutes...
+        This may take around 5-10 minutes...
       </p>
     </div>
   );
