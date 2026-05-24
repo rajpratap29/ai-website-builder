@@ -77,7 +77,7 @@ export const createUserProject = async (req: Request, res: Response) => {
     // Enhance user prompt
 
     const promptEnhanceResponse = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
       messages: [
         {
           role: "system",
@@ -122,7 +122,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
     // Generate website code
     const codeGenerationResponse = await openai.chat.completions.create({
-      model: "z-ai/glm-4.5-air:free",
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
       messages: [
         {
           role: "system",
